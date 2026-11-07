@@ -51,9 +51,11 @@ It targets Apple Silicon by default (Fargate ARM64). On an x86 machine add
 make destroy
 ```
 
-Everything in the stack uses `RemovalPolicy.DESTROY`, so the table, user pool, secrets, logs and
-container images all go away. `cdk bootstrap` leaves a small S3 bucket and ECR repo behind (the
-`CDKToolkit` stack), so delete that too once you're done with CDK completely.
+Everything in the stack uses `RemovalPolicy.DESTROY`, so the table, user pool, secrets and logs
+all go away. The Docker images do not. CDK pushes them to the shared ECR repo that
+`cdk bootstrap` creates (`cdk-hnb659fds-container-assets-...`), and that repo isn't part of this
+stack, so every deploy leaves an image behind. Delete the old images by hand if you care, or
+delete the whole `CDKToolkit` stack (S3 bucket + ECR repo) once you're done with CDK completely.
 
 ## Design notes
 
