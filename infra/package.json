@@ -1,0 +1,24 @@
+{
+  "name": "ticket-search-infra",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CDK app: DynamoDB, Cognito, ECS Fargate (Docker), ALB and CloudFront",
+  "scripts": {
+    "build": "tsc",
+    "synth": "cdk synth",
+    "diff": "cdk diff",
+    "deploy": "cdk deploy --require-approval never",
+    "destroy": "cdk destroy --force"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "aws-cdk": "^2.262.2",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.262.2",
+    "constructs": "^10.0.0",
+    "source-map-support": "^0.5.21"
+  }
+}
