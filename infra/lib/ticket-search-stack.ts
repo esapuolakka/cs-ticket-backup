@@ -18,6 +18,7 @@ export interface TicketSearchStackProps extends StackProps {
   demoUserEmail: string;
   demoUserPassword: string;
   cpuArchitecture: 'arm64' | 'x86_64';
+  seedDemoData: boolean;
 }
 
 /**
@@ -145,7 +146,7 @@ export class TicketSearchStack extends Stack {
       NODE_ENV: 'production',
       AWS_REGION: this.region,
       DYNAMODB_TABLE: table.tableName,
-      SEED_DEMO_DATA: 'true',
+      SEED_DEMO_DATA: String(props.seedDemoData),
       COGNITO_USER_POOL_ID: userPool.userPoolId,
       COGNITO_CLIENT_ID: userPoolClient.userPoolClientId,
       COGNITO_DOMAIN: `${cognitoDomainPrefix}.auth.${this.region}.amazoncognito.com`,

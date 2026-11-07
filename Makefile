@@ -6,8 +6,10 @@ local:       ## Run app + DynamoDB Local in Docker → http://localhost:3000
 bootstrap:   ## Bootstrap the AWS account for CDK
 	cd infra && npm install && npx cdk bootstrap
 
-deploy:      ## Build the image and deploy everything to AWS (needs AWS credentials)
-	cd infra && npm install && npx cdk deploy --require-approval never
+SEED ?= true
+
+deploy:      ## Build the image and deploy to AWS (needs AWS credentials). Skip demo data: make deploy SEED=false
+	cd infra && npm install && npx cdk deploy --require-approval never -c seedDemoData=$(SEED)
 
 destroy:     ## Delete every resource
 	cd infra && npx cdk destroy --force

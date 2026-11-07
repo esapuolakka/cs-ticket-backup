@@ -13,4 +13,6 @@ new TicketSearchStack(app, 'TicketSearchStack', {
   demoUserEmail: app.node.tryGetContext('demoUserEmail') ?? 'demo@example.com',
   demoUserPassword: app.node.tryGetContext('demoUserPassword') ?? 'Demo-Passw0rd!',
   cpuArchitecture: app.node.tryGetContext('cpuArchitecture') ?? 'arm64',
+  // On by default; deploy with `-c seedDemoData=false` to start with an empty table
+  seedDemoData: String(app.node.tryGetContext('seedDemoData') ?? 'true') !== 'false',
 });
