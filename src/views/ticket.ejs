@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>#<%= ticket.ticketId %> - <%= ticket.subject %></title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      color: #1a1a2e;
+      line-height: 1.5;
+    }
+
+    header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 { font-size: 1.25rem; font-weight: 600; }
+    header a { color: #94a3b8; text-decoration: none; font-size: 0.875rem; }
+    header a:hover { color: #fff; }
+
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 2rem;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+      color: #3b82f6;
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+
+    .back-link:hover { text-decoration: underline; }
+
+    .ticket-header {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .ticket-header h2 { font-size: 1.25rem; margin-bottom: 0.75rem; }
+
+    .ticket-meta {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.875rem;
+      color: #666;
+      flex-wrap: wrap;
+    }
+
+    .ticket-meta strong { color: #333; }
+
+    .ticket-description {
+      white-space: pre-wrap;
+      font-size: 0.875rem;
+      line-height: 1.7;
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CS Ticket Search</h1>
+    <a href="javascript:history.back()">Back to search</a>
+  </header>
+
+  <main>
+    <div class="card">
+      <a class="back-link" href="javascript:history.back()">&larr; Back to results</a>
+
+      <div class="ticket-header">
+        <h2>#<%= ticket.ticketId %> &mdash; <%= ticket.subject %></h2>
+        <div class="ticket-meta">
+          <span><strong>Requester:</strong> <%= ticket.requester %></span>
+          <span><strong>Email:</strong> <%= ticket.email %></span>
+          <span><strong>Tags:</strong> <%= ticket.tags %></span>
+          <span><strong>Created:</strong> <%= formatDate(ticket.createdAt) %></span>
+          <span><strong>Updated:</strong> <%= formatDate(ticket.updatedAt) %></span>
+        </div>
+      </div>
+
+      <div class="ticket-description"><%= ticket.description %></div>
+    </div>
+  </main>
+</body>
+</html>

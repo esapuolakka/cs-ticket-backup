@@ -1,0 +1,35 @@
+{
+  "name": "ticket-search",
+  "version": "1.0.0",
+  "description": "Searchable archive of Zendesk support tickets — Fastify app deployed to AWS Fargate with CDK",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc && cp -r src/views dist/views",
+    "start": "node dist/server.js",
+    "seed": "tsx scripts/seed.ts",
+    "create-table": "tsx scripts/create-table.ts",
+    "import-zendesk": "tsx scripts/import-zendesk.ts",
+    "create-cognito-user": "tsx scripts/create-cognito-user.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.700.0",
+    "@aws-sdk/client-dynamodb": "^3.700.0",
+    "@aws-sdk/lib-dynamodb": "^3.700.0",
+    "@fastify/cookie": "^11.0.0",
+    "@fastify/formbody": "^8.0.0",
+    "@fastify/view": "^10.0.0",
+    "dotenv": "^16.4.0",
+    "ejs": "^3.1.0",
+    "fastify": "^5.0.0",
+    "fastify-plugin": "^5.1.0",
+    "jsonwebtoken": "^9.0.0",
+    "jwks-rsa": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/ejs": "^3.1.5",
+    "@types/jsonwebtoken": "^9.0.0",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
