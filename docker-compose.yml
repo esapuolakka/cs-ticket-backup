@@ -1,0 +1,21 @@
+# Local run with no AWS account: the app plus DynamoDB Local.
+#   docker compose up --build   →  http://localhost:3000
+services:
+  dynamodb:
+    image: amazon/dynamodb-local:latest
+    command: -jar DynamoDBLocal.jar -inMemory -sharedDb
+    ports:
+      - "8000:8000"
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - dynamodb
+    environment:
+      NODE_ENV: development       # no Cognito config → auth bypassed, logged in as a dev user
+      AWS_REGION: eu-west-1
+      DYNAMODB_TABLE: cs-tickets
+      DYNAMODB_ENDPOINT: http://dynamodb:8000
+      SEED_DEMO_DATA: "true"      # creates the table and loads fictional tickets
