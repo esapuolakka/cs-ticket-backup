@@ -21,7 +21,7 @@ export interface TicketSearchStackProps extends StackProps {
 }
 
 /**
- * Everything is created with RemovalPolicy.DESTROY: `cdk destroy` leaves nothing behind.
+ * Be aware that everything is created with RemovalPolicy.DESTROY: `cdk destroy` leaves nothing behind. Not suitable for production.
  *
  *   Browser ─HTTPS─▶ CloudFront ─HTTP + secret header─▶ ALB ─▶ Fargate (Docker) ─▶ DynamoDB
  *                                                                  └──────────────▶ Cognito
@@ -32,28 +32,27 @@ export class TicketSearchStack extends Stack {
 
     const arm = props.cpuArchitecture === 'arm64';
 
-    // --- DynamoDB ---------------------------------------------------------------
+    // DynamoDB
     const table = new dynamodb.Table(this, 'TicketsTable', {
       partitionKey: { name: 'ticketId', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    // --- Network: public subnets only, so no NAT gateway (saves ~$1/day) ----------
+    // Network: public subnets only. Could be made private with NAT gateway
     const vpc = new ec2.Vpc(this, 'Vpc', {
       maxAzs: 2,
       natGateways: 0,
       subnetConfiguration: [{ name: 'public', subnetType: ec2.SubnetType.PUBLIC, cidrMask: 24 }],
     });
 
-    // Shared secret: CloudFront adds it as a header, the app rejects requests without it,
-    // so the load balancer's own public DNS name can't be used to bypass CloudFront.
+    // Shared secret: CloudFront adds it as a header, the app rejects requests without it
     const originVerify = new secretsmanager.Secret(this, 'OriginVerifySecret', {
       generateSecretString: { excludePunctuation: true, passwordLength: 40 },
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    // --- Container service ---------------------------------------------------------
+    // Container service
     const cluster = new ecs.Cluster(this, 'Cluster', { vpc });
 
     const image = new ecr_assets.DockerImageAsset(this, 'AppImage', {
@@ -61,12 +60,12 @@ export class TicketSearchStack extends Stack {
       platform: arm ? ecr_assets.Platform.LINUX_ARM64 : ecr_assets.Platform.LINUX_AMD64,
     });
 
-    // Cognito's hosted-UI domain prefix must be globally unique; derive it from the stack id.
+    // Cognito's hosted-UI domain prefix must be globally unique
     const stackGuid = Fn.select(2, Fn.split('/', Aws.STACK_ID));
     const cognitoDomainPrefix = Fn.join('-', ['ticket-search', Fn.select(4, Fn.split('-', stackGuid))]);
 
     const userPool = new cognito.UserPool(this, 'UserPool', {
-      selfSignUpEnabled: false, // accounts are created by an admin
+      selfSignUpEnabled: false,
       signInAliases: { email: true },
       autoVerify: { email: true },
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
@@ -99,7 +98,6 @@ export class TicketSearchStack extends Stack {
             removalPolicy: RemovalPolicy.DESTROY,
           }),
         }),
-        // Plain values are set below, once the CloudFront domain is known.
         secrets: { ORIGIN_VERIFY_SECRET: ecs.Secret.fromSecretsManager(originVerify) },
       },
     });
@@ -110,7 +108,7 @@ export class TicketSearchStack extends Stack {
     });
     table.grantReadWriteData(service.taskDefinition.taskRole);
 
-    // --- CloudFront: free HTTPS on the default *.cloudfront.net domain ----------------
+    // CloudFront. As a default *.cloudfront.net domain
     const distribution = new cloudfront.Distribution(this, 'Distribution', {
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
       defaultBehavior: {
@@ -120,14 +118,13 @@ export class TicketSearchStack extends Stack {
         }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
-        // Responses are per-session (auth cookies, search results): never cache.
         cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
         originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
       },
     });
     const siteUrl = `https://${distribution.distributionDomainName}`;
 
-    // --- Cognito app client (needs the CloudFront URL for its callback) -------------
+    // Cognito app client (needs the CloudFront URL for the callback)
     const userPoolClient = userPool.addClient('Client', {
       generateSecret: true,
       oAuth: {
@@ -156,7 +153,7 @@ export class TicketSearchStack extends Stack {
     };
     for (const [k, v] of Object.entries(env)) container.addEnvironment(k, v);
 
-    // --- Demo login ----------------------------------------------------------------
+    // Demo login
     const poolArn = userPool.userPoolArn;
     const createDemoUser = new cr.AwsCustomResource(this, 'DemoUser', {
       installLatestAwsSdk: false,
@@ -203,7 +200,7 @@ export class TicketSearchStack extends Stack {
     });
     setPassword.node.addDependency(createDemoUser);
 
-    // --- Outputs ---------------------------------------------------------------------
+    // Outputs
     new CfnOutput(this, 'SiteUrl', { value: siteUrl, description: 'Open this in a browser' });
     new CfnOutput(this, 'DemoLoginEmail', { value: props.demoUserEmail });
     new CfnOutput(this, 'DemoLoginPassword', { value: props.demoUserPassword });

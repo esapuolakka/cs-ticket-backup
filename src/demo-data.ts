@@ -5,7 +5,6 @@ type RawTicket = Pick<
   'ticketId' | 'subject' | 'description' | 'status' | 'requester' | 'email' | 'tags' | 'createdAt' | 'updatedAt'
 >;
 
-// Entirely fictional tickets (example.com addresses) used to populate demo deployments.
 const raw: RawTicket[] = [
   {
     ticketId: '1001',
